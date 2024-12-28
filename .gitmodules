@@ -1,0 +1,3 @@
+[submodule "BSplineX"]
+	path = BSplineX
+	url = ../BSplineX.git
