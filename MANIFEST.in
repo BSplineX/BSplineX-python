@@ -4,4 +4,5 @@ include BSplineX/cmake/BSplineX*.cmake
 include BSplineX/cmake/Config.cmake.in
 recursive-include BSplineX/include
 include BSplineX/LICENSE
+include BSplineX/VERSION
 
