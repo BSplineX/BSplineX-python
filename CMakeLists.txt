@@ -11,7 +11,7 @@ include(${SWIG_USE_FILE})
 find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 
 set(BSPLINEX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/BSplineX")
-set(BSPLINEX_SWIG_FILE "${BSPLINEX_DIR}/bindings/BSplineX.i")
+set(BSPLINEX_SWIG_FILE "BSplineX.i")
 
 add_subdirectory(${BSPLINEX_DIR})
 

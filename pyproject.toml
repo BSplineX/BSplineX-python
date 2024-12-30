@@ -17,9 +17,6 @@ examples = ["matplotlib", "numpy"]
 cmake.version = ">=3.15"     # Minimum CMake version supported by scikit-build
 cmake.build-type = "Release"
 build.verbose = true
-# cmakeLists path
 cmake.source-dir = "."
-#sdist.include = ["CMakeLists.txt"]
 wheel.packages = ["python/BSplineX"]
 build-dir = "build"
-
