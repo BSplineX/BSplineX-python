@@ -9,7 +9,7 @@ from typing import Iterable
 import numpy as np
 from scipy.interpolate import BSpline as BSpline_, make_lsq_spline
 
-from tests.utils import x_values_open, x_values_clamped, x_values_periodic
+from utils import x_values_open, x_values_clamped, x_values_periodic
 
 DIST_R = 1e-20
 
