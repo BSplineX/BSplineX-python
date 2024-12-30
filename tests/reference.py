@@ -29,19 +29,50 @@ class BSpline(ABC):
     def __init__(self, knots: Iterable[float], control_points: Iterable[float], degree: int,
                  extrapolation: Extrapolation) -> None:
         super().__init__()
-        self.knots = self._pad_knots(knots, degree)
+        knots = self._pad_knots(knots, degree)
         control_points = self._pad_control_points(control_points, degree)
-        self.degree = degree
         if not self._supports_extrapolation(extrapolation):
             raise ValueError(f"Invalid extrapolation {extrapolation} for BSpline type {self.__class__}")
-        self.extrapolation = False if extrapolation is Extrapolation.NONE else extrapolation.value
-        self.bspline = BSpline_(self.knots, control_points, self.degree, extrapolate=self.extrapolation)
+        extrapolation = False if extrapolation is Extrapolation.NONE else extrapolation.value
+        self.bspline = BSpline_(knots, control_points, degree, extrapolate=extrapolation)
+
+    @property
+    def knots(self) -> np.ndarray:
+        return self.bspline.t
+
+    @property
+    def control_points(self) -> np.ndarray:
+        return self.bspline.c
+
+    @property
+    def degree(self) -> int:
+        return self.bspline.k
+
+    @property
+    def extrapolation(self) -> bool:
+        return self.bspline.extrapolate
+
+    @property
+    def bspline(self) -> BSpline_:
+        return self._bspline
+
+    @bspline.setter
+    def bspline(self, bspline: BSpline_):
+        self._bspline = bspline
+        n = len(self.control_points)
+        self._basis = [
+            BSpline_(self.knots, (np.arange(n) == i).astype(float), self.degree, extrapolate=self.extrapolation)
+            for i in range(n)
+        ]
 
     def evaluate(self, x: Iterable[float]) -> np.ndarray:
         return self.bspline(x)
 
     def fit(self, x: Iterable[float], y: Iterable[float]) -> None:
         self.bspline = make_lsq_spline(x, y, self.knots, self.degree)
+
+    def basis(self, x: float) -> np.ndarray:
+        return np.array([b(x) for b in self._basis])
 
     @staticmethod
     @abstractmethod
