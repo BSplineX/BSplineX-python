@@ -4,19 +4,19 @@ import pytest
 
 from reference import OpenBSpline, Extrapolation, ClampedBSpline, PeriodicBSpline
 from utils import num_control_points_clamped, num_control_points_periodic, num_control_points_open, x_values_clamped, \
-    x_values_open, x_values_periodic
+    x_values_open, x_values_periodic, FloatArray
 
 
-def ref_open(degree: int, knots: np.ndarray, control_points: np.ndarray):
-    return OpenBSpline(knots, control_points, degree, Extrapolation.NONE)
+def ref_open(degree: int, knots: FloatArray, control_points: FloatArray):
+    return OpenBSpline.from_data(knots, control_points, degree)
 
 
-def ref_clamped(degree: int, knots: np.ndarray, control_points: np.ndarray):
-    return ClampedBSpline(knots, control_points, degree, Extrapolation.NONE)
+def ref_clamped(degree: int, knots: FloatArray, control_points: FloatArray):
+    return ClampedBSpline.from_data(knots, control_points, degree)
 
 
-def ref_periodic(degree: int, knots: np.ndarray, control_points: np.ndarray):
-    return PeriodicBSpline(knots, control_points, degree, Extrapolation.PERIODIC)
+def ref_periodic(degree: int, knots: FloatArray, control_points: FloatArray):
+    return PeriodicBSpline.from_data(knots, control_points, degree)
 
 
 @pytest.fixture
@@ -30,8 +30,8 @@ def degree() -> int:
 
 
 @pytest.fixture
-def knots() -> np.ndarray:
-    return np.arange(0., 10., 0.1)
+def knots() -> FloatArray:
+    return np.linspace(0.0, 10.0, 100, dtype=np.float64)
 
 
 @pytest.mark.parametrize("bspline_factory, ref_factory, x_values_factory, num_control_points_lambda", [

@@ -21,3 +21,6 @@ build.verbose = true
 cmake.source-dir = "."
 wheel.packages = ["python/BSplineX"]
 build-dir = "build"
+
+[tool.black]
+line-length = 120

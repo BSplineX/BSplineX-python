@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import typing as npt
 
 
 def num_control_points_open(n_knots, degree):
@@ -36,3 +37,6 @@ def x_values_periodic(knots, degree):
         knots[-degree - 1] + 3 * period,
         3000,
     )
+
+
+FloatArray = npt.NDArray[np.float64]
