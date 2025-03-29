@@ -5,7 +5,7 @@ Reference BSpline implementation.
 import argparse
 from abc import abstractmethod, ABC
 from enum import Enum
-from typing import Iterable
+from typing import Iterable, cast
 
 import numpy as np
 from scipy.interpolate import BSpline as BSpline_, make_lsq_spline, make_interp_spline
@@ -46,11 +46,11 @@ class BSpline(ABC):
             self.bspline = bspline
 
     @classmethod
-    def from_data(cls, knots: Iterable[float], control_points: Iterable[float], degree: int) -> "BSpline":
+    def from_data(cls, knots: FloatArray, control_points: FloatArray, degree: int) -> "BSpline":
         knots = cls._pad_knots(knots, degree)
         control_points = cls._pad_control_points(control_points, degree)
 
-        return cls(BSpline_(knots, control_points, degree, extrapolate=cls._extrapolation))
+        return cls(BSpline_(knots, control_points, degree, extrapolate=cls._extrapolation()))  # pyright: ignore
 
     @classmethod
     def empty(cls, degree: int) -> "BSpline":
@@ -64,7 +64,7 @@ class BSpline(ABC):
 
     @property
     def control_points(self) -> FloatArray:
-        return self.bspline.c
+        return cast(FloatArray, self.bspline.c)
 
     @property
     def degree(self) -> int:
@@ -82,7 +82,7 @@ class BSpline(ABC):
     def bspline(self, bspline: BSpline_):
         self._bspline = bspline
         n = len(self.control_points)
-        self._basis = [
+        self._basis: list[BSpline_] = [
             BSpline_(
                 self.knots,
                 (np.arange(n) == i).astype(float),
@@ -98,7 +98,7 @@ class BSpline(ABC):
         pass
 
     def evaluate(self, x: Iterable[float], derivative_order: int = 0) -> FloatArray:
-        return self.bspline(x, nu=derivative_order)
+        return cast(FloatArray, self.bspline(x, nu=derivative_order))
 
     def derivative(self, derivative_order=1) -> "BSpline":
         return self.__class__(self.bspline.derivative(nu=derivative_order))
@@ -115,15 +115,16 @@ class BSpline(ABC):
         conds_left, conds_right = conditions
         conds_left = conds_left or None
         conds_right = conds_right or None
-        if not conds_left and not conds_right:
-            conditions = None
-        else:
-            conditions = (conds_left, conds_right)
+        # if not conds_left and not conds_right:
+        #     # conditions = None
+        #     pass
+        # else:
+        conds = (conds_left, conds_right)
 
-        self.bspline = make_interp_spline(x, y, k=self.degree, bc_type=conditions)
+        self.bspline = make_interp_spline(x, y, k=self.degree, bc_type=conds)
 
-    def basis(self, x: Iterable[float]) -> FloatArray:
-        return np.array([b(x) for b in self._basis])
+    def basis(self, x: float | Iterable[float], derivative_order: int = 1) -> FloatArray:
+        return cast(FloatArray, np.array([b(x, nu=derivative_order) for b in self._basis]).transpose())
 
     def copy(self) -> "BSpline":
         return self.__class__(self.bspline)
@@ -140,7 +141,7 @@ class BSpline(ABC):
 
     @staticmethod
     @abstractmethod
-    def _pad_control_points(control_points: Iterable[float], degree: int) -> FloatArray:
+    def _pad_control_points(control_points: FloatArray, degree: int) -> FloatArray:
         pass
 
     @property
@@ -164,7 +165,7 @@ class OpenBSpline(BSpline):
         return np.array(knots)
 
     @staticmethod
-    def _pad_control_points(control_points: Iterable[float], degree: int) -> FloatArray:
+    def _pad_control_points(control_points: FloatArray, degree: int) -> FloatArray:
         return np.array(control_points)
 
     @property
@@ -192,7 +193,7 @@ class ClampedBSpline(BSpline):
         return np.pad(np.array(knots), (degree, degree), mode="edge")
 
     @staticmethod
-    def _pad_control_points(control_points: Iterable[float], degree: int) -> FloatArray:
+    def _pad_control_points(control_points: FloatArray, degree: int) -> FloatArray:
         return np.array(control_points)
 
     @property
@@ -224,7 +225,7 @@ class PeriodicBSpline(BSpline):
         return np.concatenate((pad_left, knots, pad_right))
 
     @staticmethod
-    def _pad_control_points(control_points: Iterable[float], degree: int) -> FloatArray:
+    def _pad_control_points(control_points: FloatArray, degree: int) -> FloatArray:
         return np.pad(control_points, (0, degree), mode="wrap")
 
     @property
@@ -286,7 +287,6 @@ def main() -> None:
     bspline_type = BoundaryCondition(args.type)
     spline_cls = BSPLINE_TYPE_MAP[bspline_type]
 
-    extrapolation_mode = Extrapolation(args.extrapolate)
     x_values_generator = X_VALUES_GENERATOR_MAP[bspline_type]
 
     spline = spline_cls.from_data(args.knots, args.control_points, args.degree)
