@@ -11,9 +11,6 @@ import numpy as np
 from scipy.interpolate import BSpline as BSpline_, make_lsq_spline, make_interp_spline
 
 from utils import (
-    num_control_points_periodic,
-    num_control_points_clamped,
-    num_control_points_open,
     x_values_open,
     x_values_clamped,
     x_values_periodic,
@@ -51,6 +48,11 @@ class BSpline(ABC):
         control_points = cls._pad_control_points(control_points, degree)
 
         return cls(BSpline_(knots, control_points, degree, extrapolate=cls._extrapolation()))  # pyright: ignore
+
+    @staticmethod
+    @abstractmethod
+    def required_control_points(num_knots: int, degree: int) -> int:
+        pass
 
     @classmethod
     def empty(cls, degree: int) -> "BSpline":
@@ -112,16 +114,8 @@ class BSpline(ABC):
         y: Iterable[float],
         conditions: tuple[list[tuple[int, float]], list[tuple[int, float]]],
     ) -> None:
-        conds_left, conds_right = conditions
-        conds_left = conds_left or None
-        conds_right = conds_right or None
-        # if not conds_left and not conds_right:
-        #     # conditions = None
-        #     pass
-        # else:
-        conds = (conds_left, conds_right)
-
-        self.bspline = make_interp_spline(x, y, k=self.degree, bc_type=conds)
+        bc_type = self._interp_bc(conditions)
+        self.bspline = make_interp_spline(x, y, k=self.degree, bc_type=bc_type)
 
     def basis(self, x: float | Iterable[float], derivative_order: int = 1) -> FloatArray:
         return cast(FloatArray, np.array([b(x, nu=derivative_order) for b in self._basis]).transpose())
@@ -149,13 +143,27 @@ class BSpline(ABC):
     def boundary_condition(self) -> BoundaryCondition:
         pass
 
-    @staticmethod
-    @abstractmethod
-    def _empty_data(degree: int) -> tuple[FloatArray, FloatArray]:
-        pass
+    @classmethod
+    def _empty_data(cls, degree: int) -> tuple[FloatArray, FloatArray]:
+        n_knots = 2 * degree + 2
+        n_control_points = cls.required_control_points(n_knots, degree)
+        return np.linspace(0, 1, n_knots, dtype=np.float64), np.zeros(n_control_points)
+
+    def _interp_bc(
+        self, conditions: tuple[list[tuple[int, float]], list[tuple[int, float]]]
+    ) -> tuple[list[tuple[int, float]] | None, list[tuple[int, float]] | None] | str:
+        conds_left, conds_right = conditions
+        assert len(conds_left) + len(conds_right) == self.degree - 1
+        conds_left = conds_left or None
+        conds_right = conds_right or None
+        return (conds_left, conds_right)
 
 
 class OpenBSpline(BSpline):
+    @staticmethod
+    def required_control_points(num_knots: int, degree: int) -> int:
+        return num_knots - degree - 1
+
     @staticmethod
     def _extrapolation() -> Extrapolation:
         return Extrapolation.NONE
@@ -172,18 +180,16 @@ class OpenBSpline(BSpline):
     def boundary_condition(self) -> BoundaryCondition:
         return BoundaryCondition.OPEN
 
-    @staticmethod
-    def _empty_data(degree: int) -> tuple[FloatArray, FloatArray]:
-        n_knots = 2 * degree + 2
-        n_control_points = num_control_points_open(n_knots, degree)
-        return np.linspace(0, 1, n_knots, dtype=np.float64), np.zeros(n_control_points)
-
     @property
     def domain(self) -> tuple[float, float]:
         return self.knots[self.degree].item(), self.knots[-self.degree - 1].item()
 
 
 class ClampedBSpline(BSpline):
+    @staticmethod
+    def required_control_points(num_knots: int, degree: int) -> int:
+        return num_knots + degree - 1
+
     @staticmethod
     def _extrapolation() -> Extrapolation:
         return Extrapolation.NONE
@@ -200,18 +206,16 @@ class ClampedBSpline(BSpline):
     def boundary_condition(self) -> BoundaryCondition:
         return BoundaryCondition.CLAMPED
 
-    @staticmethod
-    def _empty_data(degree: int) -> tuple[FloatArray, FloatArray]:
-        n_knots = 2 * degree + 2
-        n_control_points = num_control_points_clamped(n_knots, degree)
-        return np.linspace(0, 1, n_knots, dtype=np.float64), np.zeros(n_control_points)
-
     @property
     def domain(self) -> tuple[float, float]:
         return self.knots[0].item(), self.knots[-1].item()
 
 
 class PeriodicBSpline(BSpline):
+    @staticmethod
+    def required_control_points(num_knots: int, degree: int) -> int:
+        return num_knots - 1
+
     @staticmethod
     def _extrapolation() -> Extrapolation:
         return Extrapolation.PERIODIC
@@ -232,15 +236,15 @@ class PeriodicBSpline(BSpline):
     def boundary_condition(self) -> BoundaryCondition:
         return BoundaryCondition.PERIODIC
 
-    @staticmethod
-    def _empty_data(degree: int) -> tuple[FloatArray, FloatArray]:
-        n_knots = 2 * degree + 2
-        n_control_points = num_control_points_periodic(n_knots, degree)
-        return np.linspace(0, 1, n_knots, dtype=np.float64), np.zeros(n_control_points)
-
     @property
     def domain(self) -> tuple[float, float]:
         return -np.inf, np.inf
+
+    def _interp_bc(
+        self, conditions: tuple[list[tuple[int, float]], list[tuple[int, float]]]
+    ) -> tuple[list[tuple[int, float]] | None, list[tuple[int, float]] | None] | str:
+        # assert not conditions[0] and not conditions[1]
+        return "periodic"
 
 
 def parse_args() -> argparse.Namespace:

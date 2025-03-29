@@ -2,9 +2,10 @@ import argparse
 import json
 import os
 from dataclasses import asdict, dataclass
+from typing import Type
 
 import numpy as np
-from reference import BoundaryCondition, BSpline, Curve, OpenBSpline
+from reference import BoundaryCondition, BSpline, ClampedBSpline, Curve, OpenBSpline, PeriodicBSpline
 from utils import FloatArray, num_control_points_open
 
 DENSE_NUM_KNOTS = 50
@@ -51,7 +52,7 @@ class TestData:
 
 def nnz_basis(basis: FloatArray, expected: int) -> tuple[int, FloatArray]:
     indexes = np.nonzero(basis)[0]
-    assert np.any(indexes > 0), basis
+    assert np.any(basis[indexes] > 0), f"{basis=}, {indexes=}"
 
     assert np.all(indexes == np.arange(indexes[0], indexes[-1] + 1, 1)), basis
     assert len(indexes) <= expected
@@ -101,7 +102,11 @@ def get_sorted_array(
         noise = (end - start) / size * 0.2
         # noise = 0
         x += rng.uniform(-noise, noise, size)
+        x = x.clip(min=start, max=end)
         x.sort()
+
+    x[0] = start
+    x[-1] = end
 
     return x
 
@@ -113,13 +118,21 @@ def get_x_y_sin(rng: np.random.Generator, curve: Curve, num_points: int) -> tupl
     return x, y
 
 
-def make_open_data(rng: np.random.Generator, degree: int, curve: Curve, num_knots: int) -> TestData:
-    print(f"Generating test data for degree={degree}, curve={curve}, num_knots={num_knots}")
+def make_bspline_data(
+    bspline_cls: Type[BSpline], rng: np.random.Generator, degree: int, curve: Curve, num_knots: int
+) -> TestData:
+    print(
+        f"Generating test data for {bspline_cls().boundary_condition}, degree={degree}, curve={curve}, num_knots={num_knots}"
+    )
     x, y = get_x_y_sin(rng, curve, num_knots * 2)
     knots = get_sorted_array(rng, curve, x[0].item(), x[-1].item(), num_knots)
-    ctrl = rng.uniform(size=num_control_points_open(num_knots, degree))
-    bspline = OpenBSpline.from_data(knots, ctrl, degree)
+    ctrl = rng.uniform(size=bspline_cls.required_control_points(num_knots, degree))
+    bspline = bspline_cls.from_data(knots, ctrl, degree)
     domain_left, domain_right = bspline.domain
+    # cap infinites to very large values
+    period = knots[-1] - knots[0]
+    domain_left = max(domain_left, knots[0] - 5 * period)
+    domain_right = min(domain_right, knots[-1] + 5 * period)
 
     x_eval = rng.uniform(domain_left, domain_right, 10 * num_knots)
 
@@ -128,7 +141,7 @@ def make_open_data(rng: np.random.Generator, degree: int, curve: Curve, num_knot
     bspline_fit.fit(x[mask], y[mask])
 
     conditions_interp = get_additional_conditions(degree - 1)
-    bspline_interp = OpenBSpline.empty(degree)
+    bspline_interp = bspline_cls.empty(degree)
     bspline_interp.interpolate(x, y, conditions_interp)
 
     return TestData(
@@ -159,19 +172,28 @@ def main():
     rng = np.random.default_rng(42)
     os.makedirs(args.output_dir, exist_ok=True)
 
-    for bc, gen_fn in [(BoundaryCondition.OPEN, make_open_data)]:
+    for curve, bspline_cls in [
+        (Curve.UNIFORM, OpenBSpline),
+        (Curve.NON_UNIFORM, OpenBSpline),
+        (Curve.UNIFORM, ClampedBSpline),
+        (Curve.NON_UNIFORM, ClampedBSpline),
+        (Curve.UNIFORM, PeriodicBSpline),
+        (Curve.NON_UNIFORM, PeriodicBSpline),
+    ]:
         data = []
         for degree in args.degrees:
             data.extend(
                 [
-                    asdict(gen_fn(rng, degree, Curve.UNIFORM, DENSE_NUM_KNOTS)),
-                    asdict(gen_fn(rng, degree, Curve.NON_UNIFORM, DENSE_NUM_KNOTS)),
-                    asdict(gen_fn(rng, degree, Curve.UNIFORM, SPARSE_NUM_KNOTS)),
-                    asdict(gen_fn(rng, degree, Curve.NON_UNIFORM, SPARSE_NUM_KNOTS)),
+                    asdict(make_bspline_data(bspline_cls, rng, degree, curve, DENSE_NUM_KNOTS)),
+                    asdict(make_bspline_data(bspline_cls, rng, degree, curve, SPARSE_NUM_KNOTS)),
                 ]
             )
+        print("done, writing")
+        bc = bspline_cls().boundary_condition
+        p = os.path.join(args.output_dir, bc.value)
+        os.makedirs(p, exist_ok=True)
 
-        with open(os.path.join(args.output_dir, f"{bc.value}.json"), "w") as f:
+        with open(os.path.join(p, f"{curve.value}.json"), "w") as f:
             json.dump(data, f, cls=NpEncoder)
 
 
