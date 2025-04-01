@@ -6,7 +6,7 @@ from typing import Type
 
 import numpy as np
 from reference import BoundaryCondition, BSpline, ClampedBSpline, Curve, OpenBSpline, PeriodicBSpline
-from utils import FloatArray, num_control_points_open
+from utils import FloatArray
 
 DENSE_NUM_KNOTS = 50
 SPARSE_NUM_KNOTS = 1000
@@ -71,7 +71,7 @@ def get_bspline_data(bspline: BSpline, curve: Curve, x_eval: FloatArray) -> BSpl
         y_eval=bspline.evaluate(x_eval),
         nnz_basis=[
             [nnz_basis(x, bspline.degree + 1) for x in bspline.basis(x_eval, derivative_order=i)]
-            for i in range(bspline.degree)
+            for i in range(bspline.degree + 1)
         ],
     )
 
@@ -188,7 +188,6 @@ def main():
                     asdict(make_bspline_data(bspline_cls, rng, degree, curve, SPARSE_NUM_KNOTS)),
                 ]
             )
-        print("done, writing")
         bc = bspline_cls().boundary_condition
         p = os.path.join(args.output_dir, bc.value)
         os.makedirs(p, exist_ok=True)
