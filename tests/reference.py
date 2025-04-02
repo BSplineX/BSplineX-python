@@ -106,7 +106,10 @@ class BSpline(ABC):
         return self.__class__(self.bspline.derivative(nu=derivative_order))
 
     def fit(self, x: Iterable[float], y: Iterable[float]) -> None:
-        self.bspline = make_lsq_spline(x, y, self.knots, self.degree)
+        fit_bspline = make_lsq_spline(x, y, self.knots, self.degree)
+        self.bspline = BSpline_(
+            fit_bspline.t, fit_bspline.c, fit_bspline.k, extrapolate=self._extrapolation()  # pyright: ignore
+        )
 
     def interpolate(
         self,
@@ -115,7 +118,10 @@ class BSpline(ABC):
         conditions: tuple[list[tuple[int, float]], list[tuple[int, float]]],
     ) -> None:
         bc_type = self._interp_bc(conditions)
-        self.bspline = make_interp_spline(x, y, k=self.degree, bc_type=bc_type)
+        int_bspline = make_interp_spline(x, y, k=self.degree, bc_type=bc_type)
+        self.bspline = BSpline_(
+            int_bspline.t, int_bspline.c, int_bspline.k, extrapolate=self._extrapolation()  # pyright: ignore
+        )
 
     def basis(self, x: float | Iterable[float], derivative_order: int = 1) -> FloatArray:
         return cast(FloatArray, np.array([b(x, nu=derivative_order) for b in self._basis]).transpose())
@@ -125,7 +131,7 @@ class BSpline(ABC):
 
     @staticmethod
     @abstractmethod
-    def _extrapolation() -> Extrapolation:
+    def _extrapolation() -> str | bool:
         pass
 
     @staticmethod
@@ -165,8 +171,8 @@ class OpenBSpline(BSpline):
         return num_knots - degree - 1
 
     @staticmethod
-    def _extrapolation() -> Extrapolation:
-        return Extrapolation.NONE
+    def _extrapolation() -> bool:
+        return False
 
     @staticmethod
     def _pad_knots(knots: Iterable[float], degree: int) -> FloatArray:
@@ -191,8 +197,8 @@ class ClampedBSpline(BSpline):
         return num_knots + degree - 1
 
     @staticmethod
-    def _extrapolation() -> Extrapolation:
-        return Extrapolation.NONE
+    def _extrapolation() -> bool:
+        return False
 
     @staticmethod
     def _pad_knots(knots: Iterable[float], degree: int) -> FloatArray:
@@ -217,8 +223,8 @@ class PeriodicBSpline(BSpline):
         return num_knots - 1
 
     @staticmethod
-    def _extrapolation() -> Extrapolation:
-        return Extrapolation.PERIODIC
+    def _extrapolation() -> str:
+        return "periodic"
 
     @staticmethod
     def _pad_knots(knots: Iterable[float], degree: int) -> FloatArray:
@@ -238,7 +244,7 @@ class PeriodicBSpline(BSpline):
 
     @property
     def domain(self) -> tuple[float, float]:
-        return -np.inf, np.inf
+        return -1e300, 1e300
 
     def _interp_bc(
         self, conditions: tuple[list[tuple[int, float]], list[tuple[int, float]]]
