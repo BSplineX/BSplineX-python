@@ -137,7 +137,7 @@ def make_bspline_data(
     x_eval = rng.uniform(domain_left, domain_right, 10 * num_knots)
 
     bspline_fit = bspline.copy()
-    mask = (x >= domain_left) & (x < domain_right)
+    mask = (x >= domain_left) & (x <= domain_right)
     bspline_fit.fit(x[mask], y[mask])
 
     conditions_interp = get_additional_conditions(degree - 1)
