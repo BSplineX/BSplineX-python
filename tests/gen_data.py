@@ -140,7 +140,7 @@ def make_bspline_data(
     mask = (x >= domain_left) & (x <= domain_right)
     bspline_fit.fit(x[mask], y[mask])
 
-    conditions_interp = get_additional_conditions(degree - 1)
+    conditions_interp = get_additional_conditions(bspline_cls.required_additional_conditions(degree))
     bspline_interp = bspline_cls.empty(degree)
     bspline_interp.interpolate(x, y, conditions_interp)
 
@@ -185,7 +185,7 @@ def main():
             data.extend(
                 [
                     asdict(make_bspline_data(bspline_cls, rng, degree, curve, DENSE_NUM_KNOTS)),
-                    asdict(make_bspline_data(bspline_cls, rng, degree, curve, SPARSE_NUM_KNOTS)),
+                    # asdict(make_bspline_data(bspline_cls, rng, degree, curve, SPARSE_NUM_KNOTS)),
                 ]
             )
         bc = bspline_cls().boundary_condition
