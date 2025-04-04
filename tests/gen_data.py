@@ -129,12 +129,8 @@ def make_bspline_data(
     ctrl = rng.uniform(size=bspline_cls.required_control_points(num_knots, degree))
     bspline = bspline_cls.from_data(knots, ctrl, degree)
     domain_left, domain_right = bspline.domain
-    # cap infinites to very large values
-    period = knots[-1] - knots[0]
-    domain_left = max(domain_left, knots[0] - 5 * period)
-    domain_right = min(domain_right, knots[-1] + 5 * period)
-
-    x_eval = rng.uniform(domain_left, domain_right, 10 * num_knots)
+    edomain_left, edomain_right = bspline.eval_domain
+    x_eval = rng.uniform(edomain_left, edomain_right, 10 * num_knots)
 
     bspline_fit = bspline.copy()
     mask = (x >= domain_left) & (x <= domain_right)
@@ -142,7 +138,7 @@ def make_bspline_data(
 
     conditions_interp = get_additional_conditions(bspline_cls.required_additional_conditions(degree))
     bspline_interp = bspline_cls.empty(degree)
-    bspline_interp.interpolate(x, y, conditions_interp)
+    bspline_interp.interpolate(x[mask], y[mask], conditions_interp)
 
     return TestData(
         x=x,
@@ -185,7 +181,7 @@ def main():
             data.extend(
                 [
                     asdict(make_bspline_data(bspline_cls, rng, degree, curve, DENSE_NUM_KNOTS)),
-                    # asdict(make_bspline_data(bspline_cls, rng, degree, curve, SPARSE_NUM_KNOTS)),
+                    asdict(make_bspline_data(bspline_cls, rng, degree, curve, SPARSE_NUM_KNOTS)),
                 ]
             )
         bc = bspline_cls().boundary_condition

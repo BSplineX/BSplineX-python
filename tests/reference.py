@@ -95,9 +95,12 @@ class BSpline(ABC):
         ]
 
     @property
-    @abstractmethod
     def domain(self) -> tuple[float, float]:
-        pass
+        return self.knots[self.degree].item(), self.knots[-self.degree - 1].item()
+
+    @property
+    def eval_domain(self) -> tuple[float, float]:
+        return self.domain
 
     def evaluate(self, x: Iterable[float], derivative_order: int = 0) -> FloatArray:
         return np.array(self.bspline(x, nu=derivative_order), dtype=np.float64)
@@ -106,7 +109,7 @@ class BSpline(ABC):
         return self.__class__(self.bspline.derivative(nu=derivative_order))
 
     def fit(self, x: Iterable[float], y: Iterable[float]) -> None:
-        fit_bspline = make_lsq_spline(x, y, self.knots, self.degree)
+        fit_bspline = make_lsq_spline(x=x, y=y, t=self.knots, k=self.degree)
         self.bspline = BSpline_(
             fit_bspline.t, fit_bspline.c, fit_bspline.k, extrapolate=self._extrapolation()  # pyright: ignore
         )
@@ -195,10 +198,6 @@ class OpenBSpline(BSpline):
     def boundary_condition(self) -> BoundaryCondition:
         return BoundaryCondition.OPEN
 
-    @property
-    def domain(self) -> tuple[float, float]:
-        return self.knots[self.degree].item(), self.knots[-self.degree - 1].item()
-
 
 class ClampedBSpline(BSpline):
     @staticmethod
@@ -224,10 +223,6 @@ class ClampedBSpline(BSpline):
     @property
     def boundary_condition(self) -> BoundaryCondition:
         return BoundaryCondition.CLAMPED
-
-    @property
-    def domain(self) -> tuple[float, float]:
-        return self.knots[0].item(), self.knots[-1].item()
 
 
 class PeriodicBSpline(BSpline):
@@ -260,8 +255,10 @@ class PeriodicBSpline(BSpline):
         return BoundaryCondition.PERIODIC
 
     @property
-    def domain(self) -> tuple[float, float]:
-        return -1e300, 1e300
+    def eval_domain(self) -> tuple[float, float]:
+        dl, dr = self.domain
+        period = dr - dl
+        return dl - 2 * period, dr + 2 * period
 
     def _interp_bc(
         self, conditions: tuple[list[tuple[int, float]], list[tuple[int, float]]]
