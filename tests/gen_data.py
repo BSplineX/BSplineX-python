@@ -142,7 +142,7 @@ def make_bspline_data(
 
     conditions_interp = get_additional_conditions(bspline_cls.required_additional_conditions(degree))
     bspline_interp = bspline_cls.empty(degree)
-    bspline_interp.interpolate(x[mask], y[mask], conditions_interp)
+    bspline_interp.interpolate(x, y, conditions_interp)
 
     return TestData(
         x=x,
