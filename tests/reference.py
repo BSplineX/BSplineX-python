@@ -2,7 +2,6 @@
 Reference BSpline implementation.
 """
 
-import argparse
 from abc import abstractmethod, ABC
 from enum import Enum
 from typing import Iterable
@@ -10,12 +9,7 @@ from typing import Iterable
 import numpy as np
 from scipy.interpolate import BSpline as BSpline_, make_lsq_spline, make_interp_spline
 
-from utils import (
-    x_values_open,
-    x_values_clamped,
-    x_values_periodic,
-    FloatArray,
-)
+from utils import FloatArray
 
 DIST_R = 1e-20
 
@@ -105,7 +99,8 @@ class BSpline(ABC):
     def evaluate(self, x: Iterable[float], derivative_order: int = 0) -> FloatArray:
         return np.array(self.bspline(x, nu=derivative_order), dtype=np.float64)
 
-    def derivative(self, derivative_order=1) -> "BSpline":
+    def derivative(self, derivative_order: int = 1) -> "BSpline":
+        assert 0 < derivative_order <= self.degree
         return self.__class__(self.bspline.derivative(nu=derivative_order))
 
     def fit(self, x: Iterable[float], y: Iterable[float]) -> None:
@@ -131,7 +126,7 @@ class BSpline(ABC):
     def required_additional_conditions(degree: int) -> int:
         pass
 
-    def basis(self, x: float | Iterable[float], derivative_order: int = 1) -> FloatArray:
+    def basis(self, x: float | Iterable[float], derivative_order: int = 0) -> FloatArray:
         return np.array([b(x, nu=derivative_order) for b in self._basis], dtype=np.float64).transpose()
 
     def copy(self) -> "BSpline":
@@ -265,79 +260,3 @@ class PeriodicBSpline(BSpline):
     ) -> tuple[list[tuple[int, float]] | None, list[tuple[int, float]] | None] | str:
         assert not conditions[0] and not conditions[1]
         return "periodic"
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate reference data for the De Boor algorithm.")
-    parser.add_argument("--knots", type=float, nargs="+", help="The knots vector.", required=True)
-    parser.add_argument("--control_points", type=float, nargs="+", help="The control points vector.", required=True)
-    parser.add_argument("--degree", type=int, help="The degree of the spline.", required=True)
-    parser.add_argument(
-        "--type",
-        choices=[t.value for t in BoundaryCondition],
-        help="The type of the spline",
-        default=BoundaryCondition.OPEN.value,
-    )
-    parser.add_argument(
-        "--extrapolate",
-        choices=[e.value for e in Extrapolation],
-        help="The type of extrapolation to use",
-        default=Extrapolation.NONE.value,
-    )
-    parser.add_argument("--plot", action="store_true", help="Whether to plot the reference data or not.")
-    parser.add_argument(
-        "--print",
-        choices=["C++", "Python"],
-        help="Print the reference data in the specified language.",
-    )
-    return parser.parse_args()
-
-
-BSPLINE_TYPE_MAP = {
-    BoundaryCondition.OPEN: OpenBSpline,
-    BoundaryCondition.CLAMPED: ClampedBSpline,
-    BoundaryCondition.PERIODIC: PeriodicBSpline,
-}
-
-X_VALUES_GENERATOR_MAP = {
-    BoundaryCondition.OPEN: x_values_open,
-    BoundaryCondition.CLAMPED: x_values_clamped,
-    BoundaryCondition.PERIODIC: x_values_periodic,
-}
-
-
-def main() -> None:
-    args = parse_args()
-    bspline_type = BoundaryCondition(args.type)
-    spline_cls = BSPLINE_TYPE_MAP[bspline_type]
-
-    x_values_generator = X_VALUES_GENERATOR_MAP[bspline_type]
-
-    spline = spline_cls.from_data(args.knots, args.control_points, args.degree)
-
-    x_values = x_values_generator(args.knots, args.degree)
-    y_values = spline.evaluate(x_values)
-
-    if args.plot:
-        import matplotlib.pyplot as plt
-
-        plt.figure()
-        plt.scatter(x_values, np.nan_to_num(y_values))
-        plt.grid()
-        plt.show()
-
-    match args.print:
-        case "Python":
-            print(f"knots = {args.knots}")
-            print(f"control_points = {args.control_points}")
-            print(f"x_values = {x_values}")
-            print(f"y_values = {y_values}")
-        case "C++":
-            print(f"knots = {{{', '.join([str(k) for k in args.knots])}}};")
-            print(f"control_points = {{{', '.join([str(c) for c in args.control_points])}}};")
-            print(f"std::vector<double> x_values{{{', '.join([str(x) for x in x_values])}}};")
-            print(f"std::vector<double> y_values{{{', '.join([str(y) for y in y_values])}}};")
-
-
-if __name__ == "__main__":
-    main()
