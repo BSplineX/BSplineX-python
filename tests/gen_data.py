@@ -61,6 +61,10 @@ def nnz_basis(basis: FloatArray, expected: int) -> tuple[int, FloatArray]:
 
 
 def get_bspline_data(bspline: BSpline, curve: Curve, x_eval: FloatArray) -> BSplineData:
+    domain_left, domain_right = bspline.domain
+    mask = (x_eval >= domain_left) & (x_eval <= domain_right)
+    x_nnz = x_eval[mask]
+
     return BSplineData(
         boundary_condition=bspline.boundary_condition,
         curve=curve,
@@ -70,7 +74,7 @@ def get_bspline_data(bspline: BSpline, curve: Curve, x_eval: FloatArray) -> BSpl
         domain=bspline.domain,
         y_eval=bspline.evaluate(x_eval),
         nnz_basis=[
-            [nnz_basis(x, bspline.degree + 1) for x in bspline.basis(x_eval, derivative_order=i)]
+            [nnz_basis(x, bspline.degree + 1) for x in bspline.basis(x_nnz, derivative_order=i)]
             for i in range(bspline.degree + 1)
         ],
     )
