@@ -50,16 +50,6 @@ class TestData:
     bspline_interp: BSplineData
 
 
-def nnz_basis(basis: FloatArray, expected: int) -> tuple[int, FloatArray]:
-    indexes = np.nonzero(basis)[0]
-    assert np.any(basis[indexes] > 0), f"{basis=}, {indexes=}"
-
-    assert np.all(indexes == np.arange(indexes[0], indexes[-1] + 1, 1)), basis
-    assert len(indexes) <= expected
-    ans = np.pad(basis[indexes], (0, expected - len(indexes)), "constant")
-    return indexes[0], ans
-
-
 def get_bspline_data(bspline: BSpline, curve: Curve, x_eval: FloatArray) -> BSplineData:
     domain_left, domain_right = bspline.domain
     mask = (x_eval >= domain_left) & (x_eval <= domain_right)
@@ -73,10 +63,7 @@ def get_bspline_data(bspline: BSpline, curve: Curve, x_eval: FloatArray) -> BSpl
         ctrl=bspline.control_points,
         domain=bspline.domain,
         y_eval=bspline.evaluate(x_eval),
-        nnz_basis=[
-            [nnz_basis(x, bspline.degree + 1) for x in bspline.basis(x_nnz, derivative_order=i)]
-            for i in range(bspline.degree + 1)
-        ],
+        nnz_basis=[bspline.nnz_basis(x_nnz, derivative_order=i) for i in range(bspline.degree + 1)],
     )
 
 

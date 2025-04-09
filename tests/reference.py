@@ -126,8 +126,18 @@ class BSpline(ABC):
     def required_additional_conditions(degree: int) -> int:
         pass
 
-    def basis(self, x: float | Iterable[float], derivative_order: int = 0) -> FloatArray:
-        return np.array([b(x, nu=derivative_order) for b in self._basis], dtype=np.float64).transpose()
+    def nnz_basis(self, x: float | Iterable[float], derivative_order: int = 0) -> list[tuple[int, FloatArray]]:
+        xx = np.asarray(x, dtype=np.float64)
+        indexes = np.searchsorted(self.knots, xx, side="right") - 1 - self.degree
+        return [
+            (
+                index,
+                np.array(
+                    [b(x, nu=derivative_order) for b in self._basis[index : index + self.degree + 1]], dtype=np.float64
+                ),
+            )
+            for x, index in zip(xx, indexes)
+        ]
 
     def copy(self) -> "BSpline":
         return self.__class__(self.bspline)
