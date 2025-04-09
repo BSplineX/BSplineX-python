@@ -1,6 +1,4 @@
 import numpy as np
-from numpy import typing as npt
-
 
 def x_values_open(knots, degree):
     return np.linspace(
@@ -27,4 +25,3 @@ def x_values_periodic(knots, degree):
     )
 
 
-FloatArray = npt.NDArray[np.float64]
