@@ -16,7 +16,7 @@ def main() -> None:
     knots_end = 12.0
     num_knots = 12
 
-    bspline = bs.periodic_uniform(degree, knots_begin, knots_end, num_knots)
+    bspline = bs.make_periodic_uniform(degree, knots_begin, knots_end, num_knots)
 
     # Fit the curve to the points
     bspline.fit(x_fit, y_fit)

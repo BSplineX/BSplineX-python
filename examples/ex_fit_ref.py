@@ -25,7 +25,7 @@ def main() -> None:
     ctrl_pts = np.zeros(PeriodicBSpline.required_control_points(num_knots, degree))
 
     bspline = PeriodicBSpline.from_data(knots, ctrl_pts, degree)
-    bsplinex: bs.PeriodicUniform = bs.periodic_uniform(3, knots_begin, knots_end, num_knots, ctrl_pts)
+    bsplinex: bs.PeriodicUniform = bs.make_periodic_uniform(3, knots_begin, knots_end, num_knots, ctrl_pts)
 
     # Fit the curve to the points
     bspline.fit(x_fit, y_fit)

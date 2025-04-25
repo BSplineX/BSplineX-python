@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 
 def main() -> None:
-    xx = np.linspace(0, 2*np.pi, 10000)
+    xx = np.linspace(0, 2 * np.pi, 10000)
     yy = np.sin(xx)
 
-    bspline : bs.PeriodicUniform= bs.periodic_uniform(3)
+    bspline: bs.PeriodicUniform = bs.make_periodic_uniform(3)
     bspline.interpolate(xx, yy, [])
 
     eval_x = xx
@@ -35,7 +35,5 @@ def main() -> None:
     plt.show()
 
 
-
 if __name__ == "__main__":
     main()
-

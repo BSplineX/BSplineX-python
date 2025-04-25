@@ -3,8 +3,15 @@ import numpy as np
 import pytest
 
 from reference import OpenBSpline, Extrapolation, ClampedBSpline, PeriodicBSpline
-from utils import num_control_points_clamped, num_control_points_periodic, num_control_points_open, x_values_clamped, \
-    x_values_open, x_values_periodic, FloatArray
+from utils import (
+    num_control_points_clamped,
+    num_control_points_periodic,
+    num_control_points_open,
+    x_values_clamped,
+    x_values_open,
+    x_values_periodic,
+    FloatArray,
+)
 
 
 def ref_open(degree: int, knots: FloatArray, control_points: FloatArray):
@@ -34,13 +41,16 @@ def knots() -> FloatArray:
     return np.linspace(0.0, 10.0, 100, dtype=np.float64)
 
 
-@pytest.mark.parametrize("bspline_factory, ref_factory, x_values_factory, num_control_points_lambda", [
-    (bs.open_nonuniform, ref_open, x_values_open, num_control_points_open),
-    (bs.clamped_nonuniform, ref_clamped, x_values_clamped, num_control_points_clamped),
-    (bs.periodic_nonuniform, ref_periodic, x_values_periodic, num_control_points_periodic),
-])
+@pytest.mark.parametrize(
+    "bspline_factory, ref_factory, x_values_factory, num_control_points_lambda",
+    [
+        (bs.make_open_nonuniform, ref_open, x_values_open, num_control_points_open),
+        (bs.make_clamped_nonuniform, ref_clamped, x_values_clamped, num_control_points_clamped),
+        (bs.make_periodic_nonuniform, ref_periodic, x_values_periodic, num_control_points_periodic),
+    ],
+)
 def test_evaluate(bspline_factory, ref_factory, x_values_factory, num_control_points_lambda, rng, degree, knots):
-    control_points = rng.uniform(-1., 1., num_control_points_lambda(len(knots), degree))
+    control_points = rng.uniform(-1.0, 1.0, num_control_points_lambda(len(knots), degree))
     bspline = bspline_factory(degree, knots, control_points)
     ref_bspline = ref_factory(degree, knots, control_points)
 
@@ -51,13 +61,16 @@ def test_evaluate(bspline_factory, ref_factory, x_values_factory, num_control_po
     assert np.allclose(y_values, y_computed)
 
 
-@pytest.mark.parametrize("bspline_factory, ref_factory, x_values_factory, num_control_points_lambda", [
-    (bs.open_nonuniform, ref_open, x_values_open, num_control_points_open),
-    (bs.clamped_nonuniform, ref_clamped, x_values_clamped, num_control_points_clamped),
-    (bs.periodic_nonuniform, ref_periodic, x_values_periodic, num_control_points_periodic),
-])
+@pytest.mark.parametrize(
+    "bspline_factory, ref_factory, x_values_factory, num_control_points_lambda",
+    [
+        (bs.make_open_nonuniform, ref_open, x_values_open, num_control_points_open),
+        (bs.make_clamped_nonuniform, ref_clamped, x_values_clamped, num_control_points_clamped),
+        (bs.make_periodic_nonuniform, ref_periodic, x_values_periodic, num_control_points_periodic),
+    ],
+)
 def test_basis(bspline_factory, ref_factory, x_values_factory, num_control_points_lambda, rng, degree, knots):
-    control_points = rng.uniform(-1., 1., num_control_points_lambda(len(knots), degree))
+    control_points = rng.uniform(-1.0, 1.0, num_control_points_lambda(len(knots), degree))
     bspline = bspline_factory(degree, knots, control_points)
     ref_bspline = ref_factory(degree, knots, control_points)
 
@@ -74,15 +87,18 @@ def test_basis(bspline_factory, ref_factory, x_values_factory, num_control_point
         assert np.allclose(basis, ref_basis)
 
 
-@pytest.mark.parametrize("bspline_factory, ref_factory, x_values_factory, num_control_points_lambda", [
-    (bs.open_nonuniform, ref_open, x_values_open, num_control_points_open),
-    (bs.clamped_nonuniform, ref_clamped, x_values_clamped, num_control_points_clamped),
-    # Note: for periodic BSplines, we fit on x_values_clamped, because they are all within the period.
-    (bs.periodic_nonuniform, ref_periodic, x_values_clamped, num_control_points_periodic),
-])
+@pytest.mark.parametrize(
+    "bspline_factory, ref_factory, x_values_factory, num_control_points_lambda",
+    [
+        (bs.make_open_nonuniform, ref_open, x_values_open, num_control_points_open),
+        (bs.make_clamped_nonuniform, ref_clamped, x_values_clamped, num_control_points_clamped),
+        # Note: for periodic BSplines, we fit on x_values_clamped, because they are all within the period.
+        (bs.make_periodic_nonuniform, ref_periodic, x_values_clamped, num_control_points_periodic),
+    ],
+)
 def test_fit(bspline_factory, ref_factory, x_values_factory, num_control_points_lambda, rng, degree, knots):
     x_values = x_values_factory(knots, degree)
-    bspline = bspline_factory(degree, knots, rng.uniform(-1., 1., num_control_points_lambda(len(knots), degree)))
+    bspline = bspline_factory(degree, knots, rng.uniform(-1.0, 1.0, num_control_points_lambda(len(knots), degree)))
     control_points = bspline.get_control_points()
     y_values = [bspline.evaluate(x) for x in x_values]
 
