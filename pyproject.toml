@@ -12,7 +12,7 @@ requires-python = ">=3.7"
 
 [project.optional-dependencies]
 examples = ["matplotlib"]
-dev = ["pytest", "scipy", "numpy"]
+dev = ["pytest", "numpy==2.2.1"]
 
 [tool.scikit-build]
 cmake.version = ">=3.15"             # Minimum CMake version supported by scikit-build
@@ -21,3 +21,7 @@ build.verbose = true
 cmake.source-dir = "."
 wheel.packages = ["python/BSplineX"]
 build-dir = "build"
+
+[tool.black]
+line-length = 120
+
