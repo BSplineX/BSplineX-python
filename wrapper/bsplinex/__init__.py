@@ -1,3 +1,3 @@
-from .core import OpenUniform
+from .core import make_open_uniform, make_open_nonuniform
 
-__all__ = ["OpenUniform"]
+__all__ = ["make_open_uniform", "make_open_nonuniform"]
