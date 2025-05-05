@@ -34,7 +34,93 @@ class BSpline(ABC):
 
 
 class OpenUniform(BSpline):
-    pass
+    @overload
+    def __init__(self, degree: int) -> None:
+        """Create a uniform b-spline with open boundary condition
+
+        > NOTE: useful constructor for interpolating points
+
+        :param degree: degree of the b-spline
+        :return: the open uniform b-spline
+        """
+        ...
+
+    @overload
+    def __init__(self, degree: int, begin: float, end: float, num_elems: int) -> None:
+        """Create a uniform b-spline with open boundary condition
+
+        > NOTE: useful constructor for fitting points
+
+        :param degree: degree of the b-spline
+        :param begin: starting knot
+        :param end: end knot
+        :param num_elems: number of knots
+        :return: the open uniform b-spline
+        """
+        ...
+
+    @overload
+    def __init__(
+        self, degree: int, begin: float, end: float, num_elems: int, ctrl_points: npt.NDArray[np.float64] | list[float]
+    ) -> None:
+        """Create a uniform b-spline with open boundary condition
+
+        :param degree: degree of the b-spline
+        :param begin: starting knot
+        :param end: end knot
+        :param num_elems: number of knots
+        :param ctrl_points: control points
+        :return: the open uniform b-spline
+        """
+        ...
+
+    def __init__(
+        self,
+        degree: int,
+        begin: float | None = None,
+        end: float | None = None,
+        num_elems: int | None = None,
+        ctrl_points: npt.NDArray[np.float64] | list[float] | None = None,
+    ) -> None:
+        """Create a uniform b-spline with open boundary condition
+
+        This function has three possible overloads:
+
+        - make_open_uniform(degree)
+        - make_open_uniform(degree, begin, end, num_elems)
+        - make_open_uniform(degree, begin, end, num_elems, ctrl_points)
+
+        Note that only `make_open_uniform(degree, begin, end, num_elems, ctrl_points)`
+        generates a valid b-spline, the other overloads are meant to
+        be used for fitting (`make_open_uniform(degree, begin, end, num_elems)`)
+        and interpolation (`make_open_uniform(degree))`
+
+        :param degree: degree of the b-spline
+        :param begin: starting knot
+        :param end: end knot
+        :param num_elems: number of knots
+        :param ctrl_points: control points
+        :return: the open uniform b-spline
+        """
+
+        if all((arg is not None for arg in (begin, end, num_elems, ctrl_points))):
+            super().__init__(_impl.make_open_uniform(degree, begin, end, num_elems, ctrl_points))
+            return
+        if all((arg is not None for arg in (begin, end, num_elems))) and ctrl_points is None:
+            super().__init__(_impl.make_open_uniform(degree, begin, end, num_elems))
+            return
+        if all((arg is None for arg in (begin, end, num_elems, ctrl_points))):
+            super().__init__(_impl.make_open_uniform(degree))
+            return
+
+        error = """
+        This function has three possible overloads:
+        - make_open_uniform(degree)
+        - make_open_uniform(degree, begin, end, num_elems)
+        - make_open_uniform(degree, begin, end, num_elems, ctrl_points)
+        """
+
+        raise ValueError(dedent(error))
 
 
 class OpenNonUniform(BSpline):
