@@ -1,3 +1,3 @@
-from .core import make_open_uniform, make_open_nonuniform, OpenUniform
+from .core import BSpline, make_open_uniform
 
-__all__ = ["make_open_uniform", "make_open_nonuniform", "OpenUniform"]
+__all__ = ["BSpline", "make_open_uniform"]
