@@ -22,7 +22,7 @@ class AdditionalConditions:
         y = np.asarray(y)
         derivative_order = np.asarray(derivative_order)
 
-        if derivative_order.dtype is not np.integer:
+        if not np.issubdtype(derivative_order.dtype, np.integer):
             raise ValueError("`derivative_order` must be convertible to integer type")
 
         if not all(len(arr.shape) == 1 for arr in (x, y, derivative_order)):
