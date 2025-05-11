@@ -29,7 +29,7 @@ class AdditionalConditions:
             raise ValueError("all inputs must be 1D arrays")
 
         if not all(arr.shape == x.shape for arr in (x, y, derivative_order)):
-            raise ValueError("all inputs must be have matching dimensions")
+            raise ValueError("all inputs must have matching dimensions")
 
         self._additional_conditions = [
             _impl.InterpolantCondition(x_value=_x, y_value=_y, derivative_order=_order)
