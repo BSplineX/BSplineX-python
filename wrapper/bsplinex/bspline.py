@@ -59,7 +59,7 @@ class BSpline:
         :return: the derivative of this b-spline
         """
 
-        return self._bspline.derivative(derivative_order)
+        return BSpline(self._bspline.derivative(derivative_order))
 
     def basis(self, value: float, derivative_order: int = 0) -> npt.NDArray[np.float64]:
         """compute the basis (derivative) at `value`
