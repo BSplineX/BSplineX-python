@@ -11,7 +11,7 @@ class AdditionalConditions:
     _additional_conditions: list[_impl.InterpolantCondition]
 
     def __init__(self, x: npt.ArrayLike, y: npt.ArrayLike, derivative_order: npt.ArrayLike) -> None:
-        """construct a new AdditionalConditions object
+        """Construct a new AdditionalConditions object
 
         :param x: x-values at which the additional conditions must hold
         :param y: y-values at which the b-spline (derivative) must pass
