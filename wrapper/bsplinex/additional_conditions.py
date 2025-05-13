@@ -1,8 +1,8 @@
-# NOTE: revert back to `.`
-from bsplinex import _bsplinex_impl as _impl
-
 import numpy as np
 import numpy.typing as npt
+
+# NOTE: revert back to `.`
+from bsplinex import _bsplinex_impl as _impl
 
 
 class AdditionalConditions:

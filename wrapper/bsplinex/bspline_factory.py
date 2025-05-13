@@ -1,11 +1,11 @@
-# NOTE: revert back to `.`
-from bsplinex import _bsplinex_impl as _impl
-from .bspline import BSpline
-
 from typing import overload
 from textwrap import dedent
 
 import numpy.typing as npt
+
+# NOTE: revert back to `.`
+from bsplinex import _bsplinex_impl as _impl
+from .bspline import BSpline
 
 
 @overload

@@ -1,11 +1,12 @@
-# NOTE: revert back to `.`
-from bsplinex import _bsplinex_impl as _impl
-from .additional_conditions import AdditionalConditions
-
 from typing import Union
 
 import numpy as np
 import numpy.typing as npt
+
+# NOTE: revert back to `.`
+from bsplinex import _bsplinex_impl as _impl
+from .additional_conditions import AdditionalConditions
+
 
 BSplineTypes = Union[
     _impl.OpenUniform,
