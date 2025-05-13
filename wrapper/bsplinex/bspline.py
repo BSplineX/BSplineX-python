@@ -72,7 +72,7 @@ class BSpline:
         return np.asarray(self._bspline.basis(value, derivative_order))
 
     def nnz_basis(self, value: float, derivative_order: int = 0) -> npt.NDArray[np.float64]:
-        """compute the non-zero basis at `value`
+        """compute (the derivative of) the non-zero basis at `value`
 
         :param value: value to compute the non-zero basis at
         :param derivative_order: order of the derivative
