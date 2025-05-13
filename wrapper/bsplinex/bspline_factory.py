@@ -12,7 +12,9 @@ import numpy.typing as npt
 def make_open_uniform(degree: int) -> BSpline:
     """Create a uniform b-spline with open boundary condition
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_open_uniform(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the open uniform b-spline
@@ -24,7 +26,10 @@ def make_open_uniform(degree: int) -> BSpline:
 def make_open_uniform(degree: int, begin: float, end: float, num_elems: int) -> BSpline:
     """Create a uniform b-spline with open boundary condition
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_open_uniform(3, 0.0, 10.0, 10)
+    >>> bspline.fit(x, y)
+
 
     :param degree: degree of the b-spline
     :param begin: starting knot
@@ -77,7 +82,9 @@ def make_open_uniform(
 def make_open_nonuniform(degree: int) -> BSpline:
     """Create a non-uniform b-spline with open boundary condition
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_open_nonuniform(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the open non-uniform b-spline
@@ -89,7 +96,9 @@ def make_open_nonuniform(degree: int) -> BSpline:
 def make_open_nonuniform(degree: int, knots: npt.ArrayLike) -> BSpline:
     """Create a non-uniform b-spline with open boundary condition
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_open_nonuniform(3, knots)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param knots: knots of the b-spline
@@ -134,7 +143,9 @@ def make_open_nonuniform(
 def make_open_uniform_constant(degree: int) -> BSpline:
     """Create a uniform b-spline with open boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_open_uniform_constant(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the open uniform b-spline with constant extrapolation
@@ -146,7 +157,9 @@ def make_open_uniform_constant(degree: int) -> BSpline:
 def make_open_uniform_constant(degree: int, begin: float, end: float, num_elems: int) -> BSpline:
     """Create a uniform b-spline with open boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_open_uniform_constant(3, 0.0, 10.0, 10)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param begin: starting knot
@@ -201,7 +214,9 @@ def make_open_uniform_constant(
 def make_open_nonuniform_constant(degree: int) -> BSpline:
     """Create a non-uniform b-spline with open boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_open_nonuniform_constant(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the open non-uniform b-spline with constant extrapolation
@@ -213,7 +228,9 @@ def make_open_nonuniform_constant(degree: int) -> BSpline:
 def make_open_nonuniform_constant(degree: int, knots: npt.ArrayLike) -> BSpline:
     """Create a non-uniform b-spline with open boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_open_nonuniform_constant(3, knots)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param knots: knots of the b-spline
@@ -258,7 +275,9 @@ def make_open_nonuniform_constant(
 def make_clamped_uniform(degree: int) -> BSpline:
     """Create a uniform b-spline with clamped boundary condition
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_clamped_uniform(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the clamped uniform b-spline
@@ -270,7 +289,9 @@ def make_clamped_uniform(degree: int) -> BSpline:
 def make_clamped_uniform(degree: int, begin: float, end: float, num_elems: int) -> BSpline:
     """Create a uniform b-spline with clamped boundary condition
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_clamped_uniform(3, 0.0, 10.0, 10)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param begin: starting knot
@@ -323,7 +344,9 @@ def make_clamped_uniform(
 def make_clamped_nonuniform(degree: int) -> BSpline:
     """Create a non-uniform b-spline with clamped boundary condition
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_clamped_nonuniform(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the clamped non-uniform b-spline
@@ -335,7 +358,9 @@ def make_clamped_nonuniform(degree: int) -> BSpline:
 def make_clamped_nonuniform(degree: int, knots: npt.ArrayLike) -> BSpline:
     """Create a non-uniform b-spline with clamped boundary condition
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_clamped_nonuniform(3, knots)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param knots: knots of the b-spline
@@ -380,7 +405,9 @@ def make_clamped_nonuniform(
 def make_clamped_uniform_constant(degree: int) -> BSpline:
     """Create a uniform b-spline with clamped boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_clamped_uniform_constant(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the clamped uniform b-spline with constant extrapolation
@@ -392,7 +419,9 @@ def make_clamped_uniform_constant(degree: int) -> BSpline:
 def make_clamped_uniform_constant(degree: int, begin: float, end: float, num_elems: int) -> BSpline:
     """Create a uniform b-spline with clamped boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_clamped_uniform_constant(3, 0.0, 10.0, 10)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param begin: starting knot
@@ -447,7 +476,9 @@ def make_clamped_uniform_constant(
 def make_clamped_nonuniform_constant(degree: int) -> BSpline:
     """Create a non-uniform b-spline with clamped boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_clamped_nonuniform_constant(3)
+    >>> bspline.interpolate(x, y, additional_conditions)
 
     :param degree: degree of the b-spline
     :return: the clamped non-uniform b-spline with constant extrapolation
@@ -459,7 +490,9 @@ def make_clamped_nonuniform_constant(degree: int) -> BSpline:
 def make_clamped_nonuniform_constant(degree: int, knots: npt.ArrayLike) -> BSpline:
     """Create a non-uniform b-spline with clamped boundary condition and constant extrapolation
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_clamped_nonuniform_constant(3, knots)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param knots: knots of the b-spline
@@ -504,7 +537,9 @@ def make_clamped_nonuniform_constant(
 def make_periodic_uniform(degree: int) -> BSpline:
     """Create a uniform b-spline with periodic boundary condition
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_periodic_uniform(3)
+    >>> bspline.interpolate(x, y)
 
     :param degree: degree of the b-spline
     :return: the periodic uniform b-spline
@@ -516,7 +551,9 @@ def make_periodic_uniform(degree: int) -> BSpline:
 def make_periodic_uniform(degree: int, begin: float, end: float, num_elems: int) -> BSpline:
     """Create a uniform b-spline with periodic boundary condition
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_periodic_uniform(3, 0.0, 10.0, 10)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param begin: starting knot
@@ -569,7 +606,9 @@ def make_periodic_uniform(
 def make_periodic_nonuniform(degree: int) -> BSpline:
     """Create a non-uniform b-spline with periodic boundary condition
 
-    > NOTE: useful constructor for interpolating points
+    > NOTE: useful for interpolating points
+    >>> bspline = make_periodic_nonuniform(3)
+    >>> bspline.interpolate(x, y)
 
     :param degree: degree of the b-spline
     :return: the periodic non-uniform b-spline
@@ -581,7 +620,9 @@ def make_periodic_nonuniform(degree: int) -> BSpline:
 def make_periodic_nonuniform(degree: int, knots: npt.ArrayLike) -> BSpline:
     """Create a non-uniform b-spline with periodic boundary condition
 
-    > NOTE: useful constructor for fitting points
+    > NOTE: useful for fitting points
+    >>> bspline = make_periodic_nonuniform(3, knots)
+    >>> bspline.fit(x, y)
 
     :param degree: degree of the b-spline
     :param knots: knots of the b-spline
