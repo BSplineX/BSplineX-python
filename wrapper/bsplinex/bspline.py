@@ -6,7 +6,7 @@ import numpy.typing as npt
 
 # NOTE: revert back to `.`
 from bsplinex import _bsplinex_impl as _impl
-from .additional_conditions import AdditionalConditions
+from .interpolating_condition import InterpolantCondition
 
 
 BSplineTypes = Union[
@@ -104,23 +104,16 @@ class BSpline:
         self,
         x: npt.NDArray[np.float64] | list[float],
         y: npt.NDArray[np.float64] | list[float],
-        additional_conditions: AdditionalConditions | None = None,
+        additional_conditions: list[InterpolantCondition],
     ) -> None:
         """Compute the b-spline that interpolates the given points and respects the given additional conditions
 
         :param x: x-values of the points
         :param y: y-values of the points
-        :param additional_conditions: additional interpolating conditions
+        :param additional_conditions: list of additional interpolating conditions
         """
 
-        if additional_conditions is None:
-            if type(self._bspline) not in [_impl.PeriodicUniform, _impl.PeriodicNonUniform]:
-                raise ValueError("Only a periodic BSpline supports passing no `additional_conditions`")
-            self._bspline.interpolate(x, y, [])
-        else:
-            if type(self._bspline) in [_impl.PeriodicUniform, _impl.PeriodicNonUniform]:
-                raise ValueError("A periodic BSpline supports only passing no `additional_conditions`")
-            self._bspline.interpolate(x, y, additional_conditions._additional_conditions)
+        self._bspline.interpolate(x, y, [condition._condition for condition in additional_conditions])
 
     def get_control_points(self) -> npt.NDArray[np.float64]:
         """Get the control points of the b-spline
