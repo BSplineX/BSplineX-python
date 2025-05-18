@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 
 from . import _bsplinex_impl as _impl
-from .interpolating_condition import InterpolantCondition
+from .interpolant_condition import InterpolantCondition
 
 
 BSplineTypes = Union[

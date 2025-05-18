@@ -1,5 +1,5 @@
 from .bspline import BSpline
-from .interpolating_condition import InterpolantCondition
+from .interpolant_condition import InterpolantCondition
 from .bspline_factory import (
     make_open_uniform,
     make_open_nonuniform,

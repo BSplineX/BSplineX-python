@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# NOTE: revert back to `.`
 from . import _bsplinex_impl as _impl
 
 
