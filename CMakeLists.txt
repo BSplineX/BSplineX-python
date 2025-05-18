@@ -57,3 +57,14 @@ install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/_bsplinex_impl.py
   DESTINATION bsplinex
 )
+
+add_custom_command(TARGET libbsplinex POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          ${CMAKE_CURRENT_BINARY_DIR}/_bsplinex_impl.py
+          ${CMAKE_SOURCE_DIR}/wrapper/bsplinex/_bsplinex_impl.py
+
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libbsplinex>
+          ${CMAKE_SOURCE_DIR}/wrapper/bsplinex/$<TARGET_FILE_NAME:libbsplinex>
+)
+

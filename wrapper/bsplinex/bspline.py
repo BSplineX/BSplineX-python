@@ -4,8 +4,7 @@ from typing import Union
 import numpy as np
 import numpy.typing as npt
 
-# NOTE: revert back to `.`
-from bsplinex import _bsplinex_impl as _impl
+from . import _bsplinex_impl as _impl
 from .interpolating_condition import InterpolantCondition
 
 

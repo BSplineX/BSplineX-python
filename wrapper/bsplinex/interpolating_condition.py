@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # NOTE: revert back to `.`
-from bsplinex import _bsplinex_impl as _impl
+from . import _bsplinex_impl as _impl
 
 
 class InterpolantCondition:
