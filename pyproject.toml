@@ -3,25 +3,25 @@ requires = ["scikit-build-core>=0.10.0", "swig>=4"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "BSplineX"
+name = "bsplinex"
 version = "0.1.0"
 authors = [{ name = "Sebastiano Taddei" }, { name = "Gabriele Masina" }]
 description = "The B-Spline library you have always dreamed of were performance and easy-to-use interfaces live in harmony."
 readme = "README.md"
 requires-python = ">=3.7"
+dependencies = ["numpy"]
 
 [project.optional-dependencies]
 examples = ["matplotlib"]
 dev = ["pytest", "numpy==2.2.1"]
 
 [tool.scikit-build]
-cmake.version = ">=3.15"             # Minimum CMake version supported by scikit-build
+cmake.version = ">=3.15"              # Minimum CMake version supported by scikit-build
 cmake.build-type = "Release"
 build.verbose = true
 cmake.source-dir = "."
-wheel.packages = ["python/BSplineX"]
+wheel.packages = ["wrapper/bsplinex"]
 build-dir = "build"
 
 [tool.black]
 line-length = 120
-

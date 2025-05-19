@@ -326,4 +326,8 @@ tags
 .history
 .ionide
 
+### SWIG ###
+wrapper/bsplinex/_bsplinex_impl.py
+wrapper/bsplinex/_libbsplinex.so
+
 # End of https://www.toptal.com/developers/gitignore/api/python,vim,pycharm,visualstudiocode
