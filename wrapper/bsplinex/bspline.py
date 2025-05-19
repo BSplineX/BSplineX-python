@@ -115,7 +115,7 @@ class BSpline:
 
         self._bspline.interpolate(x, y, [condition._condition for condition in additional_conditions])
 
-    def get_control_points(self) -> npt.NDArray[np.float64]:
+    def control_points(self) -> npt.NDArray[np.float64]:
         """Get the control points of the b-spline
 
         :return: the control points
@@ -123,7 +123,7 @@ class BSpline:
 
         return np.asarray(self._bspline.get_control_points())
 
-    def get_knots(self) -> npt.NDArray[np.float64]:
+    def knots(self) -> npt.NDArray[np.float64]:
         """Get the knots of the b-spline
 
         :return: the knots
