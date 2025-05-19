@@ -82,6 +82,7 @@ class BSpline:
 
         return np.asarray(self._bspline.nnz_basis(value, derivative_order))
 
+    @property
     def domain(self) -> tuple[float, float]:
         """Get the domain of the b-spline
 
@@ -130,7 +131,8 @@ class BSpline:
 
         return np.asarray(self._bspline.get_knots())
 
-    def get_degree(self) -> float:
+    @property
+    def degree(self) -> float:
         """Get the degree of the b-spline
 
         :return: the degree
